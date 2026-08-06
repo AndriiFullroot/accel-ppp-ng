@@ -5,7 +5,6 @@
  */
 
 #include <linux/if.h>
-#include <sys/ioctl.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <string.h>
@@ -54,17 +53,17 @@ static int nnle_nlmsg_handler(const struct sockaddr_nl *nladdr,
 	  is not DOWN(it could be *UNKNOWN*) and interface info change is UP.
 	  That's how we can handle different interfaces provided by VPP - e.g., LCP tap and LCP bond.
 	 */
-     if (hdr->nlmsg_type == RTM_NEWLINK
-            && tb[IFLA_OPERSTATE]
-            && RTA_PAYLOAD(tb[IFLA_OPERSTATE]) >= 1) {
-                unsigned char operstate = *(unsigned char *)RTA_DATA(tb[IFLA_OPERSTATE]);
+  if (hdr->nlmsg_type == RTM_NEWLINK
+          && tb[IFLA_OPERSTATE]
+          && RTA_PAYLOAD(tb[IFLA_OPERSTATE]) >= 1) {
+              unsigned char operstate = *(unsigned char *)RTA_DATA(tb[IFLA_OPERSTATE]);
 
-                if (operstate == IF_OPER_UP
-                    || (operstate == IF_OPER_UNKNOWN
-                        && (ifi->ifi_change & IFF_UP)
-                        && (ifi->ifi_flags & IFF_UP))) {
-                        nnle_emit_callbacks(ifname, 1);
-                }
+              if (operstate == IF_OPER_UP
+                  || (operstate == IF_OPER_UNKNOWN
+                      && (ifi->ifi_change & IFF_UP)
+                      && (ifi->ifi_flags & IFF_UP))) {
+                      nnle_emit_callbacks(ifname, 1);
+              }
 	} else if (hdr->nlmsg_type == RTM_DELLINK) {
 		nnle_emit_callbacks(ifname, 0);
 	}
